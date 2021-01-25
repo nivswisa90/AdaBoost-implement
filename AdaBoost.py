@@ -1,5 +1,6 @@
 import pandas as pd
 from sklearn import tree
+import numpy as np
 from sklearn.metrics import accuracy_score
 
 
@@ -25,19 +26,27 @@ def CategoricalToNumerical(dataframe):
 
 def AdaBoost(data, test):
     # initial same weights to each record in the database
-    data["weight"] = (1 / len(data))
-    sample = data.sample(len(data), replace=True, weights=data['weight'])
-    # print(sample)
+    df = data.copy()
+    df["weight"] = (1 / len(data))
+
     features = ['pclass', 'age', 'gender']
-    x = sample[features]
-    y = sample.survived
+    x = data[features]
+    y = data.survived
     clf = tree.DecisionTreeClassifier()
     clf.max_depth = 1
     clf.criterion = 'entropy'
     clf = clf.fit(x, y)
     prediction = clf.predict(x)
-    sample["prediction"] = prediction
-    print(sample)
+    # new column name prediction
+    df["prediction"] = prediction
 
+    # check the where the prediction got wrong predict
+    df['wrong predict'] = np.where(df["prediction"] != data["survived"], 1, 0)
+
+    # calculate error ratio
+    calculateError = np.sum(df['weight'] * df['wrong predict'])
+    if calculateError > 0.5:
+        pass
+    calculateBeta = calculateError / (1 - calculateError)
 
     return prediction
