@@ -28,7 +28,8 @@ def AdaBoost(data, test):
     # initial same weights to each record in the database
     df = data.copy()
     df["weight"] = (1 / len(data))
-    hypothesis =list()
+    hypothesis = list()
+    alpha_list = list()
     features = ['pclass', 'age', 'gender']
     x = data[features]
     y = data.survived
@@ -52,6 +53,28 @@ def AdaBoost(data, test):
             pass
         calculateBeta = calculateError / (1 - calculateError)
         calculateAlpha = np.log(1 / calculateBeta) * 0.5
+        # If prediction is True weight*beta else weight*alpha
 
         df['weight'] = np.where(df["wrong predict"] == 0, df['weight'] * calculateBeta, df['weight'] * calculateAlpha)
+
+        # Normalize the weights
+        weight_sum = sum(df['weight'])
+        df['weight'] = df['weight'] / weight_sum
+
+    final_prediction = []
+    for (j, i) in enumerate(hypothesis):
+        final_prediction.append(alpha_list[j] * i.predict(test))
+
+    predictions = [sum(x) for x in zip(*np.array(final_prediction))]
+
+    for i in range(len(predictions)):
+        predictions[i] = 'yes' if predictions[i] == 0 else 'no'
+
+    predict_decision = pd.DataFrame(predictions, columns=['prediction'])
+    titanic_test_final_data = pd.concat([test, predict_decision], axis=1)
+
+    print(titanic_test_final_data)
+    print("Successfully predicted data with accuracy " + "= "
+          + str(accuracy_score(titanic_test_final_data.survived, titanic_test_final_data.prediction) * 100) + ' %')
+
     return df
