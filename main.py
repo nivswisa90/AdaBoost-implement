@@ -14,15 +14,11 @@ def main():
     dataSet = CategoricalToNumerical(dataSet)
     dataSetTest = CategoricalToNumerical(dataSetTest)
     finalDataSetTest = dataSetTest.drop('survived', axis=1)
-    # uniqueDataFrame = dataSet.drop_duplicates()
 
     predictions = list()
-    for i in range(3):
-        # Create sub sample and convert it to DataFrame.
-        # sample = createSubSamples(uniqueDataFrame)
-        prediction = AdaBoost(dataSet, finalDataSetTest)
-        predictions.append(prediction)
-    # print(predictions)
+    prediction = AdaBoost(dataSet, finalDataSetTest)
+    predictions.append(prediction)
+    print(predictions)
 
 
 if __name__ == '__main__':
